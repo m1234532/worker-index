@@ -114,6 +114,23 @@
       margin-bottom: 32px;
       font-weight: 500;
     }
+    
+    /* 加载提示条 */
+    .load-tip {
+      background: linear-gradient(135deg, rgba(90, 200, 250, 0.15), rgba(74, 144, 217, 0.1));
+      border: 1px solid rgba(74, 144, 217, 0.2);
+      border-radius: 12px;
+      padding: 10px 16px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-width: 320px;
+      animation: fadeUp 0.6s ease;
+    }
+    .load-tip-icon { font-size: 14px; }
 
     /* 玻璃卡片网格 */
     .glass-cards {
@@ -408,6 +425,12 @@
   <!-- ==================== 欢迎页 ==================== -->
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
+      <!-- 加载提示 -->
+      <div class="load-tip">
+        <span class="load-tip-icon">💡</span>
+        <span>加载慢？点击右上角「···」→「在浏览器打开」</span>
+      </div>
+      
       <div class="welcome-emoji">💼</div>
       <h1>打工人体质检测</h1>
       <p class="welcome-subtitle">基于社会学四大理论 · 解码你的职场基因</p>
