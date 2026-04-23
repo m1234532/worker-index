@@ -244,9 +244,9 @@
       </div>
       <div class="q-body">
         <div class="q-number">题目 {{currentQ + 1}} / {{questions.length}}</div>
-        <div class="q-text">{{questions[currentQ]?.text}}</div>
+        <div class="q-text">{{questions[currentQ] && questions[currentQ].text}}</div>
         <div class="q-options">
-          <button class="q-option" v-for="(opt, idx) in questions[currentQ]?.options" :key="idx" :class="{selected: selectedOption === idx}" @click="selectOption(idx)">{{opt.text}}</button>
+          <button class="q-option" v-for="(opt, idx) in (questions[currentQ] && questions[currentQ].options)" :key="idx" :class="{selected: selectedOption === idx}" @click="selectOption(idx)">{{opt.text}}</button>
         </div>
       </div>
     </div>
@@ -266,30 +266,30 @@
   <transition name="page">
     <div class="result" v-if="phase === 'result'" v-show="result">
       <div class="r-hero">
-        <div class="r-type-code">{{result?.type}}</div>
-        <div class="r-name">{{result?.name}}</div>
-        <div class="r-sub" v-if="result?.subtitle">{{result.subtitle}}</div>
+        <div class="r-type-code">{{result && result.type}}</div>
+        <div class="r-name">{{result && result.name}}</div>
+        <div class="r-sub" v-if="result && result.subtitle">{{result.subtitle}}</div>
         <div class="r-cards">
-          <div class="r-avatar" :style="{'--avatar-bg': result?.visual?.bg}">
-            <div class="r-avatar-inner">{{result?.visual?.emoji}}</div>
+          <div class="r-avatar" :style="{'--avatar-bg': result && result.visual && result.visual.bg}">
+            <div class="r-avatar-inner">{{result && result.visual && result.visual.emoji}}</div>
           </div>
         </div>
         <div class="r-scores">
-          <div class="r-score-item"><div class="r-score-label">内卷指数</div><div class="r-score-value">{{result?.scores?.neijuan}}%</div></div>
-          <div class="r-score-item"><div class="r-score-label">摸鱼天赋</div><div class="r-score-value">{{result?.scores?.moyu}}%</div></div>
-          <div class="r-score-item"><div class="r-score-label">表演人格</div><div class="r-score-value">{{result?.scores?.biaoyan}}%</div></div>
-          <div class="r-score-item"><div class="r-score-label">异化程度</div><div class="r-score-value">{{result?.scores?.yihua}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">内卷指数</div><div class="r-score-value">{{result && result.scores && result.scores.neijuan}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">摸鱼天赋</div><div class="r-score-value">{{result && result.scores && result.scores.moyu}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">表演人格</div><div class="r-score-value">{{result && result.scores && result.scores.biaoyan}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">异化程度</div><div class="r-score-value">{{result && result.scores && result.scores.yihua}}%</div></div>
         </div>
       </div>
 
-      <div class="r-quote">"{{result?.quote}}"</div>
+      <div class="r-quote">"{{result && result.quote}}"</div>
 
       <div class="r-section">
         <h3>📋 体质诊断报告</h3>
-        <p v-for="(line, i) in (result?.desc || '').split('\n')" :key="i">{{line}}</p>
+        <p v-for="(line, i) in (result && result.desc || '').split('\n')" :key="i">{{line}}</p>
       </div>
 
-      <div class="r-section" v-if="result?.theory">
+      <div class="r-section" v-if="result && result.theory">
         <h3>📚 社会学视角</h3>
         <p>{{result.theory}}</p>
       </div>
@@ -420,7 +420,7 @@ createApp({
       if (!result.value) return '';
       const url = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
       const buddies = workBuddies.value.map((b, i) => `${i+1}. ${b.emoji} ${b.name} (${b.subtitle})`).join('\n');
-      return `【打工人体质检测结果】\n\n我是「${result.value.name}」${result.value.visual?.emoji || ''}\n${result.value.subtitle}\n\n📊 四维指数：\n内卷指数 ${result.value.scores?.neijuan}% | 摸鱼天赋 ${result.value.scores?.moyu}%\n表演人格 ${result.value.scores?.biaoyan}% | 异化程度 ${result.value.scores?.yihua}%\n\n💬 ${result.value.quote}\n\n🤝 最适合我的职场搭子：\n${buddies}\n\n👉 测测你的职场基因：${url}`;
+      return `【打工人体质检测结果】\n\n我是「${result.value.name}」${result.value.visual && result.value.visual.emoji || ''}\n${result.value.subtitle}\n\n📊 四维指数：\n内卷指数 ${result.value.scores && result.value.scores.neijuan}% | 摸鱼天赋 ${result.value.scores && result.value.scores.moyu}%\n表演人格 ${result.value.scores && result.value.scores.biaoyan}% | 异化程度 ${result.value.scores && result.value.scores.yihua}%\n\n💬 ${result.value.quote}\n\n🤝 最适合我的职场搭子：\n${buddies}\n\n👉 测测你的职场基因：${url}`;
     });
 
     const storage = {
