@@ -8,7 +8,7 @@
  */
 
 // ==================== 题目库 ====================
-const QUESTION_BANK = [
+var QUESTION_BANK = [
   // 维度1：内卷指数（资本争夺度）
   {
     id: 1,
@@ -180,7 +180,7 @@ const QUESTION_BANK = [
 
 // ==================== 结果类型定义 ====================
 // 四维度：内卷(N高/L低) 摸鱼(M高/Y低) 表演(B高/Y低) 异化(H高/D低)
-const PERSONALITY_TYPES = {
+var PERSONALITY_TYPES = {
   // NMBH - 卷王之王
   'NMBH': {
     name: '卷王之王',
@@ -361,29 +361,30 @@ const PERSONALITY_TYPES = {
 // ==================== 核心计算函数 ====================
 function calcResult(answers, questions) {
   // 计算四维度得分
-  const scores = { neijuan: 0, moyu: 0, biaoyan: 0, yihua: 0 };
-  const counts = { neijuan: 0, moyu: 0, biaoyan: 0, yihua: 0 };
+  var scores = { neijuan: 0, moyu: 0, biaoyan: 0, yihua: 0 };
+  var counts = { neijuan: 0, moyu: 0, biaoyan: 0, yihua: 0 };
   
-  answers.forEach((ansIdx, qIdx) => {
-    const q = questions[qIdx];
+  for (var i = 0; i < answers.length; i++) {
+    var ansIdx = answers[i];
+    var q = questions[i];
     if (q && ansIdx !== undefined) {
-      const opt = q.options[ansIdx];
+      var opt = q.options[ansIdx];
       if (opt) {
         scores[q.dimension] += opt.score;
         counts[q.dimension]++;
       }
     }
-  });
+  }
 
   // 标准化到 0-100
-  const normalize = (dim) => {
-    const max = counts[dim] * 3;
-    const min = counts[dim] * 1;
+  function normalize(dim) {
+    var max = counts[dim] * 3;
+    var min = counts[dim] * 1;
     if (max === min) return 50;
     return Math.round(((scores[dim] - min) / (max - min)) * 100);
-  };
+  }
 
-  const finalScores = {
+  var finalScores = {
     neijuan: normalize('neijuan'),
     moyu: normalize('moyu'),
     biaoyan: normalize('biaoyan'),
@@ -391,14 +392,13 @@ function calcResult(answers, questions) {
   };
 
   // 判档（50%为界）
-  const getLevel = (score) => score >= 50 ? 'H' : 'L';
-  const typeCode = 
+  var typeCode = 
     (finalScores.neijuan >= 50 ? 'N' : 'L') +
     (finalScores.moyu >= 50 ? 'M' : 'Y') +
     (finalScores.biaoyan >= 50 ? 'B' : 'Y') +
     (finalScores.yihua >= 50 ? 'H' : 'D');
 
-  const typeData = PERSONALITY_TYPES[typeCode] || PERSONALITY_TYPES['LYBD'];
+  var typeData = PERSONALITY_TYPES[typeCode] || PERSONALITY_TYPES['LYBD'];
 
   return {
     type: typeCode,

@@ -8,7 +8,7 @@
   <meta http-equiv="Expires" content="0">
   <title>打工人体质检测 · 你的职场基因</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.js"></script>
 <style>
     /* 初始化加载提示 */
     #initial-loading {
@@ -372,9 +372,10 @@
 <script src="data.js"></script>
 <script>
 // 加载超时检测（10秒）
-const loadTimeout = setTimeout(() => {
-  if (document.getElementById('initial-loading') && !document.getElementById('initial-loading').classList.contains('hide')) {
-    document.getElementById('initial-loading').classList.add('show-error');
+var loadTimeout = setTimeout(function() {
+  var el = document.getElementById('initial-loading');
+  if (el && !el.classList.contains('hide')) {
+    el.classList.add('show-error');
   }
 }, 10000);
 
@@ -389,79 +390,104 @@ if (typeof Vue === 'undefined') {
 clearTimeout(loadTimeout);
 document.getElementById('initial-loading').classList.add('hide');
 
-const { createApp, ref, onMounted, computed } = Vue;
+var createApp = Vue.createApp;
+var ref = Vue.ref;
+var onMounted = Vue.onMounted;
+var computed = Vue.computed;
 
 createApp({
-  setup() {
-    const phase = ref('welcome');
-    const currentQ = ref(0);
-    const answers = ref([]);
-    const selectedOption = ref(null);
-    const result = ref(null);
-    const hasRecord = ref(false);
-    const showChangelog = ref(false);
-    const questions = ref(QUESTION_BANK);
-    const copied = ref(false);
-    const loadingProgress = ref(0);
-    const emojiIndex = ref(0);
-    const workEmojis = ['💼', '📊', '☕', '🖥️', '📈', '🗂️', '📎', '✉️', '📋', '💻'];
-    let loadingTimer = null;
-    let emojiTimer = null;
+  setup: function() {
+    var phase = ref('welcome');
+    var currentQ = ref(0);
+    var answers = ref([]);
+    var selectedOption = ref(null);
+    var result = ref(null);
+    var hasRecord = ref(false);
+    var showChangelog = ref(false);
+    var questions = ref(QUESTION_BANK);
+    var copied = ref(false);
+    var loadingProgress = ref(0);
+    var emojiIndex = ref(0);
+    var workEmojis = ['💼', '📊', '☕', '🖥️', '📈', '🗂️', '📎', '✉️', '📋', '💻'];
+    var loadingTimer = null;
+    var emojiTimer = null;
 
-    const workBuddies = computed(() => {
+    var workBuddies = computed(function() {
       if (!result.value || !result.value.type) return [];
-      const matches = WORK_BUDDY_MATCHES[result.value.type];
+      var matches = WORK_BUDDY_MATCHES[result.value.type];
       if (!matches) return [];
-      return matches.slice(0, 3).map(code => ({ code, ...PERSONALITY_TYPES[code] }));
+      return matches.slice(0, 3).map(function(code) {
+        var obj = { code: code };
+        var typeData = PERSONALITY_TYPES[code];
+        for (var key in typeData) {
+          obj[key] = typeData[key];
+        }
+        return obj;
+      });
     });
 
     // 生成分享文案（带描述）
-    const shareText = computed(() => {
+    var shareText = computed(function() {
       if (!result.value) return '';
-      const url = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
-      const buddies = workBuddies.value.map((b, i) => `${i+1}. ${b.emoji} ${b.name} (${b.subtitle})`).join('\n');
-      return `【打工人体质检测结果】\n\n我是「${result.value.name}」${result.value.visual && result.value.visual.emoji || ''}\n${result.value.subtitle}\n\n📊 四维指数：\n内卷指数 ${result.value.scores && result.value.scores.neijuan}% | 摸鱼天赋 ${result.value.scores && result.value.scores.moyu}%\n表演人格 ${result.value.scores && result.value.scores.biaoyan}% | 异化程度 ${result.value.scores && result.value.scores.yihua}%\n\n💬 ${result.value.quote}\n\n🤝 最适合我的职场搭子：\n${buddies}\n\n👉 测测你的职场基因：${url}`;
+      var url = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
+      var buddies = workBuddies.value.map(function(b, i) {
+        return (i + 1) + '. ' + b.emoji + ' ' + b.name + ' (' + b.subtitle + ')';
+      }).join('\n');
+      var emoji = result.value.visual && result.value.visual.emoji ? result.value.visual.emoji : '';
+      var neijuan = result.value.scores && result.value.scores.neijuan ? result.value.scores.neijuan : 0;
+      var moyu = result.value.scores && result.value.scores.moyu ? result.value.scores.moyu : 0;
+      var biaoyan = result.value.scores && result.value.scores.biaoyan ? result.value.scores.biaoyan : 0;
+      var yihua = result.value.scores && result.value.scores.yihua ? result.value.scores.yihua : 0;
+      return '【打工人体质检测结果】\n\n我是「' + result.value.name + '」' + emoji + '\n' + result.value.subtitle + '\n\n📊 四维指数：\n内卷指数 ' + neijuan + '% | 摸鱼天赋 ' + moyu + '%\n表演人格 ' + biaoyan + '% | 异化程度 ' + yihua + '%\n\n💬 ' + result.value.quote + '\n\n🤝 最适合我的职场搭子：\n' + buddies + '\n\n👉 测测你的职场基因：' + url;
     });
 
-    const storage = {
-      save: (key, val) => localStorage.setItem(`worker_${key}`, JSON.stringify(val)),
-      load: (key) => JSON.parse(localStorage.getItem(`worker_${key}`) || 'null'),
-      clear: (key) => localStorage.removeItem(`worker_${key}`)
+    var storage = {
+      save: function(key, val) { localStorage.setItem('worker_' + key, JSON.stringify(val)); },
+      load: function(key) { return JSON.parse(localStorage.getItem('worker_' + key) || 'null'); },
+      clear: function(key) { localStorage.removeItem('worker_' + key); }
     };
 
-    const startQuiz = () => { phase.value = 'quiz'; currentQ.value = 0; answers.value = []; selectedOption.value = null; storage.clear('answers'); };
-    const selectOption = (idx) => { selectedOption.value = idx; answers.value[currentQ.value] = idx; storage.save('answers', answers.value); setTimeout(() => { selectedOption.value = null; if (currentQ.value < questions.value.length - 1) { currentQ.value++; } else { analyzeResult(); } }, 250); };
-    const goBack = () => { selectedOption.value = null; if (currentQ.value > 0) { currentQ.value--; } else { phase.value = 'welcome'; answers.value = []; } };
+    var startQuiz = function() { phase.value = 'quiz'; currentQ.value = 0; answers.value = []; selectedOption.value = null; storage.clear('answers'); };
+    var selectOption = function(idx) { selectedOption.value = idx; answers.value[currentQ.value] = idx; storage.save('answers', answers.value); setTimeout(function() { selectedOption.value = null; if (currentQ.value < questions.value.length - 1) { currentQ.value++; } else { analyzeResult(); } }, 250); };
+    var goBack = function() { selectedOption.value = null; if (currentQ.value > 0) { currentQ.value--; } else { phase.value = 'welcome'; answers.value = []; } };
     
-    const analyzeResult = () => {
+    var analyzeResult = function() {
       phase.value = 'loading'; loadingProgress.value = 0; emojiIndex.value = 0;
-      emojiTimer = setInterval(() => { emojiIndex.value = (emojiIndex.value + 1) % workEmojis.length; }, 300);
-      loadingTimer = setInterval(() => {
+      emojiTimer = setInterval(function() { emojiIndex.value = (emojiIndex.value + 1) % workEmojis.length; }, 300);
+      loadingTimer = setInterval(function() {
         loadingProgress.value += Math.floor(Math.random() * 15) + 5;
         if (loadingProgress.value >= 100) {
           loadingProgress.value = 100; clearInterval(loadingTimer); clearInterval(emojiTimer);
-          setTimeout(() => { phase.value = 'result'; result.value = calcResult(answers.value, questions.value); storage.save('lastResult', result.value); hasRecord.value = true; }, 300);
+          setTimeout(function() { phase.value = 'result'; result.value = calcResult(answers.value, questions.value); storage.save('lastResult', result.value); hasRecord.value = true; }, 300);
         }
       }, 200);
     };
 
-    const viewLastResult = () => { const last = storage.load('lastResult'); if (last) { result.value = last; phase.value = 'result'; } };
+    var viewLastResult = function() { var last = storage.load('lastResult'); if (last) { result.value = last; phase.value = 'result'; } };
     
-    const copyShareText = async () => {
-      try {
-        await navigator.clipboard.writeText(shareText.value);
-        copied.value = true; setTimeout(() => copied.value = false, 2000);
-      } catch (e) {
-        const input = document.createElement('input'); input.value = shareText.value; document.body.appendChild(input); input.select(); document.execCommand('copy'); document.body.removeChild(input);
-        copied.value = true; setTimeout(() => copied.value = false, 2000);
+    var copyShareText = function() {
+      var text = shareText.value;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          copied.value = true; setTimeout(function() { copied.value = false; }, 2000);
+        }).catch(function() {
+          fallbackCopy(text);
+        });
+      } else {
+        fallbackCopy(text);
       }
     };
+    
+    var fallbackCopy = function(text) {
+      var input = document.createElement('input'); input.value = text; document.body.appendChild(input); input.select(); document.execCommand('copy'); document.body.removeChild(input);
+      copied.value = true; setTimeout(function() { copied.value = false; }, 2000);
+    };
 
-    const retry = () => { phase.value = 'welcome'; currentQ.value = 0; answers.value = []; result.value = null; storage.clear('answers'); };
+    var retry = function() { phase.value = 'welcome'; currentQ.value = 0; answers.value = []; result.value = null; storage.clear('answers'); };
 
-    onMounted(() => { hasRecord.value = !!storage.load('lastResult'); const saved = storage.load('answers'); if (saved && saved.length > 0) { answers.value = saved; currentQ.value = saved.length - 1; } });
+    onMounted(function() { hasRecord.value = !!storage.load('lastResult'); var saved = storage.load('answers'); if (saved && saved.length > 0) { answers.value = saved; currentQ.value = saved.length - 1; } });
 
-    return { phase, currentQ, answers, selectedOption, result, hasRecord, showChangelog, questions, workBuddies, copied, shareText, loadingProgress, emojiIndex, workEmojis, startQuiz, selectOption, goBack, viewLastResult, retry, copyShareText };
+    return { phase: phase, currentQ: currentQ, answers: answers, selectedOption: selectedOption, result: result, hasRecord: hasRecord, showChangelog: showChangelog, questions: questions, workBuddies: workBuddies, copied: copied, shareText: shareText, loadingProgress: loadingProgress, emojiIndex: emojiIndex, workEmojis: workEmojis, startQuiz: startQuiz, selectOption: selectOption, goBack: goBack, viewLastResult: viewLastResult, retry: retry, copyShareText: copyShareText };
   }
 }).mount('#app');
 </script>
